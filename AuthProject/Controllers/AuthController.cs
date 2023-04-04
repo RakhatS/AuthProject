@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -86,6 +87,11 @@ namespace AuthProject.Controllers
         [HttpGet("CheckAuth")]
         public async Task<IActionResult> CheckAuth()
         {
+            var user = await _dbContext.Users
+                .SingleOrDefaultAsync(x => x.IdentityUser.Email == User.ToUserInfo().Username
+                || x.IdentityUser.UserName == User.ToUserInfo().Username);
+            if (user == null)
+                return Unauthorized();
             return Ok("Authorized");
         }
         private async Task Token(string email)
